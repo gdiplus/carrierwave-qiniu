@@ -18,6 +18,8 @@ module CarrierWave
           @qiniu_async_ops     = options[:qiniu_async_ops] || ''
           @qiniu_can_overwrite = options[:qiniu_can_overwrite] || false
           @qiniu_expires_in    = options[:expires_in] || 3600
+          @persistent_ops      = options[:persistent_ops] || ''
+          @persistent_notify_url     = options[:persistent_notify_url] || ''
           init
         end
 
@@ -31,11 +33,17 @@ module CarrierWave
             @qiniu_expires_in,
             1
           )
-
+          if @persistent_ops != ''
+            x_var = {:persistent_ops => @persistent_ops, :persistent_notify_url => @persistent_notify_url}
+          else
+            x_var = nil
+          end
+          
           code, result, response_headers = ::Qiniu::Storage.upload_with_put_policy(
             put_policy,
             file.path,
-            key
+            key,
+            x_var
           )
 
         end
